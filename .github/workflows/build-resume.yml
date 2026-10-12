@@ -28,11 +28,14 @@ jobs:
           latexmk_use_xelatex: true
           args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
 
+      - name: Name the generated PDF
+        run: mv resume.pdf Hrithik_Singh.Resume.pdf
+
       - name: Save the PDF in the workflow run
         uses: actions/upload-artifact@v7
         with:
           name: resume-pdf
-          path: resume.pdf
+          path: Hrithik_Singh.Resume.pdf
           if-no-files-found: error
           retention-days: 30
 
@@ -48,4 +51,4 @@ jobs:
           to: shrithik511@gmail.com
           from: 'Hrithik Singh Resume Bot <${{ secrets.MAIL_USERNAME }}>'
           body: Your latest resume PDF is attached. It was built from commit ${{ github.sha }}.
-          attachments: resume.pdf
+          attachments: Hrithik_Singh.Resume.pdf
