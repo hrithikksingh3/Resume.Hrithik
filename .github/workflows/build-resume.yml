@@ -1,0 +1,51 @@
+name: Build and email resume
+
+on:
+  push:
+    paths:
+      - '**.tex'
+      - '**.cls'
+      - '**.sty'
+      - 'fonts/**'
+      - '.github/workflows/build-resume.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-email:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the resume source
+        uses: actions/checkout@v6
+
+      - name: Compile the resume PDF
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: resume.tex
+          latexmk_use_xelatex: true
+          args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
+
+      - name: Save the PDF in the workflow run
+        uses: actions/upload-artifact@v7
+        with:
+          name: resume-pdf
+          path: resume.pdf
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Email the generated PDF
+        uses: dawidd6/action-send-mail@v22
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_APP_PASSWORD }}
+          subject: Resume PDF — ${{ github.repository }} @ ${{ github.sha }}
+          to: shrithik511@gmail.com
+          from: 'Hrithik Singh Resume Bot <${{ secrets.MAIL_USERNAME }}>'
+          body: Your latest resume PDF is attached. It was built from commit ${{ github.sha }}.
+          attachments: resume.pdf
